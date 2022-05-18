@@ -13,14 +13,16 @@ return new class extends Migration
    */
   public function up()
   {
-    Schema::create('users', function (Blueprint $table) {
+    Schema::create('forum_comments', function (Blueprint $table) {
       $table->id();
-      $table->string('username');
-      $table->string('email')->unique();
-      $table->timestamp('email_verified_at')->nullable();
-      $table->string('password');
-      $table->rememberToken();
+      $table->string('body');
+      $table->string('category');
+      $table->foreignId('user_id');
+      $table->foreignId('forum_id');
       $table->timestamps();
+
+      $table->foreign('user_id')->references('id')->on('users');
+      $table->foreign('forum_id')->references('id')->on('forums');
     });
   }
 
@@ -31,6 +33,6 @@ return new class extends Migration
    */
   public function down()
   {
-    Schema::dropIfExists('users');
+    Schema::dropIfExists('forum_comments');
   }
 };

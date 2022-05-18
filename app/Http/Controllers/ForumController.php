@@ -17,7 +17,7 @@ class ForumController extends Controller
 
   public function index()
   {
-    //
+    return Forum::with(['user:id,username'])->get();
   }
 
   public function store(Request $request)
@@ -51,7 +51,7 @@ class ForumController extends Controller
 
   public function show($id)
   {
-    //
+    return Forum::with(['user:id,username'])->findOrFail($id);
   }
 
   public function update(Request $request, $id)

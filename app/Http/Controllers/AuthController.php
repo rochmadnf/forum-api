@@ -9,6 +9,7 @@ class AuthController extends Controller
   public function __construct()
   {
     $this->middleware('auth:api', ['except' => ['login']]);
+    return auth()->shouldUse('api');
   }
 
   public function login()
@@ -24,7 +25,7 @@ class AuthController extends Controller
 
   public function me()
   {
-    return response()->json(auth()->user);
+    return response()->json(auth()->user());
   }
 
   public function logout()

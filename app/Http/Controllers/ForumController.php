@@ -22,23 +22,12 @@ class ForumController extends Controller
 
   public function store(Request $request)
   {
-    $validator = Validator::make($request->all(), [
-      'title' => 'string|required|min:5',
-      'body' => 'required|min:10',
-      'category' => 'required',
-    ]);
-
+    $validator = $this->validateRequest($request);
     if ($validator->fails()) {
       return response()->json($validator->messages());
     }
 
-
-    try {
-      $user = auth()->userOrFail();
-    } catch (UserNotDefinedException $e) {
-      return response()->json(['message' => 'not authenticated, you have to login first'], 200);
-    }
-
+    $user = $this->getAuthUser();
     $user->forums()->create([
       'title' => $request->title,
       'body' => $request->body,
@@ -56,11 +45,45 @@ class ForumController extends Controller
 
   public function update(Request $request, $id)
   {
-    //
+    $validator = $this->validateRequest($request);
+
+    if ($validator->fails()) {
+      return response()->json($validator->messages());
+    }
+
+    $user = $this->getAuthUser();
+
+    // Check ownership
+
+    Forum::find($id)->update([
+      'title' => $request->title,
+      'body' => $request->body,
+      'category' => $request->category,
+    ]);
+
+    return response()->json(['message' => 'Successfully Updated.']);
   }
 
   public function destroy($id)
   {
     //
+  }
+
+  private function validateRequest($request)
+  {
+    return Validator::make($request->all(), [
+      'title' => 'string|required|min:5',
+      'body' => 'required|min:10',
+      'category' => 'required',
+    ]);
+  }
+
+  private function getAuthUser()
+  {
+    try {
+      return auth()->userOrFail();
+    } catch (UserNotDefinedException $e) {
+      return response()->json(['message' => 'not authenticated, you have to login first'], 200);
+    }
   }
 }

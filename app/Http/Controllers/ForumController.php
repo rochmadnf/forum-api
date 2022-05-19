@@ -6,6 +6,7 @@ use App\Models\Forum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\UserNotDefinedException;
+use Symfony\Component\HttpFoundation\Response;
 
 class ForumController extends Controller
 {
@@ -27,7 +28,12 @@ class ForumController extends Controller
       return response()->json($validator->messages());
     }
 
-    $user = $this->getAuthUser();
+    try {
+      $user = auth()->userOrFail();
+    } catch (UserNotDefinedException $e) {
+      return response()->json(['message' => 'not authenticated, you have to login first'], 405);
+    }
+
     $user->forums()->create([
       'title' => $request->title,
       'body' => $request->body,
@@ -51,11 +57,18 @@ class ForumController extends Controller
       return response()->json($validator->messages());
     }
 
-    $user = $this->getAuthUser();
+    try {
+      $user = auth()->userOrFail();
+    } catch (UserNotDefinedException $e) {
+      return response()->json(['message' => 'not authenticated, you have to login first'], 405);
+    }
+
+    $forum = Forum::find($id);
 
     // Check ownership
+    if ($user->id !== $forum->user_id) return response()->json(['message' => 'Not Authorized'], Response::HTTP_UNAUTHORIZED);
 
-    Forum::find($id)->update([
+    $forum->update([
       'title' => $request->title,
       'body' => $request->body,
       'category' => $request->category,
@@ -76,14 +89,5 @@ class ForumController extends Controller
       'body' => 'required|min:10',
       'category' => 'required',
     ]);
-  }
-
-  private function getAuthUser()
-  {
-    try {
-      return auth()->userOrFail();
-    } catch (UserNotDefinedException $e) {
-      return response()->json(['message' => 'not authenticated, you have to login first'], 200);
-    }
   }
 }

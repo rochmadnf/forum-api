@@ -79,7 +79,19 @@ class ForumController extends Controller
 
   public function destroy($id)
   {
-    //
+    try {
+      $user = auth()->userOrFail();
+    } catch (UserNotDefinedException $e) {
+      return response()->json(['message' => 'not authenticated, you have to login first'], 405);
+    }
+
+    $forum = Forum::find($id);
+
+    // Check ownership
+    if ($user->id !== $forum->user_id) return response()->json(['message' => 'Not Authorized'], Response::HTTP_UNAUTHORIZED);
+
+    $forum->delete();
+    return response()->json(['message' => 'Successfully Deleted'], Response::HTTP_OK);
   }
 
   private function validateRequest($request)

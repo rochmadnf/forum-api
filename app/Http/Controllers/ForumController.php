@@ -23,16 +23,8 @@ class ForumController extends Controller
 
   public function store(Request $request)
   {
-    $validator = $this->validateRequest($request);
-    if ($validator->fails()) {
-      return response()->json($validator->messages());
-    }
-
-    try {
-      $user = auth()->userOrFail();
-    } catch (UserNotDefinedException $e) {
-      return response()->json(['message' => 'not authenticated, you have to login first'], 405);
-    }
+    $this->validateRequest($request);
+    $user = $this->getAuthUser();
 
     $user->forums()->create([
       'title' => $request->title,
@@ -51,22 +43,13 @@ class ForumController extends Controller
 
   public function update(Request $request, $id)
   {
-    $validator = $this->validateRequest($request);
-
-    if ($validator->fails()) {
-      return response()->json($validator->messages());
-    }
-
-    try {
-      $user = auth()->userOrFail();
-    } catch (UserNotDefinedException $e) {
-      return response()->json(['message' => 'not authenticated, you have to login first'], 405);
-    }
+    $this->validateRequest($request);
+    $user = $this->getAuthUser();
 
     $forum = Forum::find($id);
 
     // Check ownership
-    if ($user->id !== $forum->user_id) return response()->json(['message' => 'Not Authorized'], Response::HTTP_UNAUTHORIZED);
+    $this->checkOwnership($user->id, $forum->user_id);
 
     $forum->update([
       'title' => $request->title,
@@ -79,16 +62,10 @@ class ForumController extends Controller
 
   public function destroy($id)
   {
-    try {
-      $user = auth()->userOrFail();
-    } catch (UserNotDefinedException $e) {
-      return response()->json(['message' => 'not authenticated, you have to login first'], 405);
-    }
-
-    $forum = Forum::find($id);
-
+    $forum = Forum::findOrFail($id);
+    $user = $this->getAuthUser();
     // Check ownership
-    if ($user->id !== $forum->user_id) return response()->json(['message' => 'Not Authorized'], Response::HTTP_UNAUTHORIZED);
+    $this->checkOwnership($user->id, $forum->user_id);
 
     $forum->delete();
     return response()->json(['message' => 'Successfully Deleted'], Response::HTTP_OK);
@@ -96,10 +73,33 @@ class ForumController extends Controller
 
   private function validateRequest($request)
   {
-    return Validator::make($request->all(), [
+    $validator =  Validator::make($request->all(), [
       'title' => 'string|required|min:5',
       'body' => 'required|min:10',
       'category' => 'required',
     ]);
+
+    if ($validator->fails()) {
+      response()->json($validator->messages())->send();
+      exit;
+    }
+  }
+
+  private function getAuthUser()
+  {
+    try {
+      return auth()->userOrFail();
+    } catch (UserNotDefinedException $e) {
+      response()->json(['message' => 'not authenticated, you have to login first'], 405)->send();
+      exit;
+    }
+  }
+
+  private function checkOwnership($user, $forum)
+  {
+    if ($user !== $forum) {
+      response()->json(['message' => 'Not Authorized'], Response::HTTP_UNAUTHORIZED)->send();
+      exit;
+    }
   }
 }

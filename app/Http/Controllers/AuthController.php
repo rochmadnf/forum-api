@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -37,14 +38,14 @@ class AuthController extends Controller
 
   public function refresh()
   {
-    return $this->respondWithToken(auth()->refresh());
+    return $this->respondWithToken(auth()->refresh(true, true));
   }
 
   protected function respondWithToken($token)
   {
     return response()->json([
       'access_token' => $token,
-      'token_type' => 'bearer',
+      'token_type' => "bearer",
       'expires_in' => auth()->factory()->getTTL() * 60,
     ]);
   }

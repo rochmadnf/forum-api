@@ -45,12 +45,10 @@ class ForumController extends Controller
   public function update(Request $request, $id)
   {
     $this->validateRequest($request);
-    $user = $this->getAuthUser();
-
     $forum = Forum::find($id);
 
     // Check ownership
-    $this->checkOwnership($user->id, $forum->user_id);
+    $this->checkOwnership($forum->user_id);
 
     $forum->update([
       'title' => $request->title,
@@ -64,9 +62,8 @@ class ForumController extends Controller
   public function destroy($id)
   {
     $forum = Forum::findOrFail($id);
-    $user = $this->getAuthUser();
     // Check ownership
-    $this->checkOwnership($user->id, $forum->user_id);
+    $this->checkOwnership($forum->user_id);
 
     $forum->delete();
     return response()->json(['message' => 'Successfully Deleted'], Response::HTTP_OK);
@@ -82,14 +79,6 @@ class ForumController extends Controller
 
     if ($validator->fails()) {
       response()->json($validator->messages())->send();
-      exit;
-    }
-  }
-
-  private function checkOwnership($user, $forum)
-  {
-    if ($user !== $forum) {
-      response()->json(['message' => 'Not Authorized'], Response::HTTP_UNAUTHORIZED)->send();
       exit;
     }
   }

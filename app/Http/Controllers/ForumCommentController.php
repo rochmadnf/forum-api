@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Forum;
 use Illuminate\Http\Request;
 use App\Http\Traits\AuthTrait;
+use App\Models\ForumComment;
 use Illuminate\Support\Facades\Validator;
 
 class ForumCommentController extends Controller
@@ -29,38 +31,28 @@ class ForumCommentController extends Controller
     return response()->json(['message' => 'Successfully comment posted']);
   }
 
-  /**
-   * Display the specified resource.
-   *
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
-  public function show($id)
+  public function update(Request $request, $forumId, $commentId)
   {
-    //
+    $this->validateRequest($request);
+    $forumComment = ForumComment::findOrFail($commentId);
+
+    $this->checkOwnership($forumComment->user_id);
+
+    $forumComment->update([
+      'body' => $request->body,
+    ]);
+
+    return response()->json(['message' => 'Successfully comment updated']);
   }
 
-  /**
-   * Update the specified resource in storage.
-   *
-   * @param  \Illuminate\Http\Request  $request
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
-  public function update(Request $request, $id)
+  public function destroy($forumId, $commentId)
   {
-    //
-  }
+    $forumComment = ForumComment::findOrFail($commentId);
+    $this->checkOwnership($forumComment->user_id);
 
-  /**
-   * Remove the specified resource from storage.
-   *
-   * @param  int  $id
-   * @return \Illuminate\Http\Response
-   */
-  public function destroy($id)
-  {
-    //
+    $forumComment->delete();
+
+    return response()->json(['message' => 'Successfully comment deleted']);
   }
 
   private function validateRequest($request)

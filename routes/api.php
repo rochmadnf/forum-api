@@ -14,5 +14,5 @@ Route::group(['middleware' => 'api'], function ($router) {
   });
 
   Route::apiResource('forums', ForumController::class);
-  Route::apiResource('forums.comments', ForumCommentController::class)->except(['index']);
+  Route::apiResource('forums.comments', ForumCommentController::class)->except(['index', 'show']);
 });

@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\AuthTrait;
 use App\Models\Forum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\UserNotDefinedException;
 use Symfony\Component\HttpFoundation\Response;
 
 class ForumController extends Controller
 {
+  use AuthTrait;
 
   public function __construct()
   {
@@ -38,7 +39,7 @@ class ForumController extends Controller
 
   public function show($id)
   {
-    return Forum::with(['user:id,username'])->findOrFail($id);
+    return Forum::with(['user:id,username', 'comments.user:id,username'])->findOrFail($id);
   }
 
   public function update(Request $request, $id)
@@ -81,16 +82,6 @@ class ForumController extends Controller
 
     if ($validator->fails()) {
       response()->json($validator->messages())->send();
-      exit;
-    }
-  }
-
-  private function getAuthUser()
-  {
-    try {
-      return auth()->userOrFail();
-    } catch (UserNotDefinedException $e) {
-      response()->json(['message' => 'not authenticated, you have to login first'], 405)->send();
       exit;
     }
   }

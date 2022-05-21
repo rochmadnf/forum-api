@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ForumController;
-use App\Http\Controllers\RegisterController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\{AuthController, ForumController, ForumCommentController, RegisterController};
 
 
 Route::group(['middleware' => 'api'], function ($router) {
@@ -17,4 +14,5 @@ Route::group(['middleware' => 'api'], function ($router) {
   });
 
   Route::apiResource('forums', ForumController::class);
+  Route::apiResource('forums.comments', ForumCommentController::class)->except(['index']);
 });

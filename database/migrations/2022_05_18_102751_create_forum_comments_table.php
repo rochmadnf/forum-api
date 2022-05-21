@@ -16,7 +16,6 @@ return new class extends Migration
     Schema::create('forum_comments', function (Blueprint $table) {
       $table->id();
       $table->string('body');
-      $table->string('category');
       $table->foreignId('user_id');
       $table->foreignId('forum_id');
       $table->timestamps();

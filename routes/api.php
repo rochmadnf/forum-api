@@ -13,7 +13,10 @@ Route::group(['middleware' => 'api'], function ($router) {
     Route::post('me', [AuthController::class, 'me']);
   });
 
-  Route::get('/user/@{username}', [UserController::class, 'show']);
+  Route::prefix('user')->group(function () {
+    Route::get('@{username}', [UserController::class, 'show']);
+    Route::get('@{username}/activity', [UserController::class, 'getActivity']);
+  });
 
   Route::get('/forums/tag/{tag}', [ForumController::class, 'filterTag']);
   Route::apiResource('forums', ForumController::class);

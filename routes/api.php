@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{AuthController, ForumController, ForumCommentController, RegisterController};
+use App\Http\Controllers\{AuthController, ForumController, ForumCommentController, RegisterController, UserController};
 
 
 Route::group(['middleware' => 'api'], function ($router) {
@@ -12,6 +12,8 @@ Route::group(['middleware' => 'api'], function ($router) {
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
   });
+
+  Route::get('/user/@{username}', [UserController::class, 'show']);
 
   Route::get('/forums/tag/{tag}', [ForumController::class, 'filterTag']);
   Route::apiResource('forums', ForumController::class);

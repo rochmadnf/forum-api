@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
@@ -17,7 +18,7 @@ class RegisterController extends Controller
     ]);
 
     if ($validator->fails()) {
-      return response()->json($validator->messages());
+      return response()->json($validator->messages(), Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     $user = User::create(

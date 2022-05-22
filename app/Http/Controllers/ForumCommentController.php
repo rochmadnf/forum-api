@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Forum;
+use App\Models\ForumComment;
 use Illuminate\Http\Request;
 use App\Http\Traits\AuthTrait;
-use App\Models\ForumComment;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class ForumCommentController extends Controller
 {
@@ -28,7 +28,7 @@ class ForumCommentController extends Controller
       'forum_id' => $forumId,
     ]);
 
-    return response()->json(['message' => 'Successfully comment posted']);
+    return response()->json(['message' => 'Successfully comment posted'], Response::HTTP_OK);
   }
 
   public function update(Request $request, $forumId, $commentId)
@@ -42,7 +42,7 @@ class ForumCommentController extends Controller
       'body' => $request->body,
     ]);
 
-    return response()->json(['message' => 'Successfully comment updated']);
+    return response()->json(['message' => 'Successfully comment updated'], Response::HTTP_OK);
   }
 
   public function destroy($forumId, $commentId)
@@ -52,7 +52,7 @@ class ForumCommentController extends Controller
 
     $forumComment->delete();
 
-    return response()->json(['message' => 'Successfully comment deleted']);
+    return response()->json(['message' => 'Successfully comment deleted'], Response::HTTP_OK);
   }
 
   private function validateRequest($request)
@@ -62,7 +62,7 @@ class ForumCommentController extends Controller
     ]);
 
     if ($validator->fails()) {
-      response()->json($validator->messages())->send();
+      response()->json($validator->messages(), Response::HTTP_UNPROCESSABLE_ENTITY)->send();
       exit;
     }
   }

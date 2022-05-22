@@ -35,7 +35,7 @@ class ForumController extends Controller
       'category' => $request->category,
     ]);
 
-    return response()->json(['message' => 'Successfully Posted.']);
+    return response()->json(['message' => 'Successfully Posted.'], Response::HTTP_OK);
   }
 
   public function show($id)
@@ -64,7 +64,7 @@ class ForumController extends Controller
       'category' => $request->category,
     ]);
 
-    return response()->json(['message' => 'Successfully Updated.']);
+    return response()->json(['message' => 'Successfully Updated.'], Response::HTTP_OK);
   }
 
   public function destroy($id)
@@ -86,7 +86,7 @@ class ForumController extends Controller
     ]);
 
     if ($validator->fails()) {
-      response()->json($validator->messages())->send();
+      response()->json($validator->messages(), Response::HTTP_UNPROCESSABLE_ENTITY)->send();
       exit;
     }
   }

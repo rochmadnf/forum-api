@@ -43,6 +43,13 @@ class ForumController extends Controller
     return new ForumResource(Forum::with(['user:id,username', 'comments.user:id,username'])->findOrFail($id));
   }
 
+  public function filterTag($tag)
+  {
+    return ForumResource::collection(
+      Forum::with('user:id,username')->where('category', $tag)->paginate(5)
+    );
+  }
+
   public function update(Request $request, $id)
   {
     $this->validateRequest($request);

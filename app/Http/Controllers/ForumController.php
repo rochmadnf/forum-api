@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Forum;
 use Illuminate\Http\Request;
 use App\Http\Traits\AuthTrait;
-use App\Http\Resources\ForumResource;
+use App\Http\Resources\{ForumsResource, ForumResource};
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,7 +20,7 @@ class ForumController extends Controller
 
   public function index()
   {
-    return ForumResource::collection(Forum::with(['user:id,username'])->paginate(5));
+    return ForumsResource::collection(Forum::with(['user:id,username'])->withCount('comments')->paginate(5));
   }
 
   public function store(Request $request)
